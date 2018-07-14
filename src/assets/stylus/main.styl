@@ -1,0 +1,80 @@
+// SETTINGS
+html
+  line-height 1.4
+  font-size 18px
+  color #2c3e50
+
+body
+  font-family 'Avenir', Helvetica, Arial, sans-serif
+  -webkit-font-smoothing antialiased
+  -moz-osx-font-smoothing grayscale
+  font-weight normal
+
+h1, h2, h3, h4, h5, h6
+  margin 0
+
+ul, li
+  margin 0
+  padding 0
+  list-style-type none
+
+p
+  margin 0
+
+a
+  text-decoration none
+  color blackColor
+
+audio, canvas, iframe, img, svg, video
+  vertical-align middle
+
+section
+  position relative
+  padding 24px 0
+
+textarea
+  resize none
+
+input, select, button
+  outline none
+
+*, *:before, *:after
+  box-sizing border-box
+
+.wrapper 
+  height 100vh
+  z-index 1
+  
+.container
+  width 100%
+  max-width 1200px
+  margin 0 auto
+  padding 0 60px
+  position relative
+  // text-align center
+  
+//Buttons
+.button-main
+  padding 8px 12px
+  margin-bottom 8px
+  font-size 16px
+  color #fff
+  background-color #446CB3
+  border none
+  border-radius 8px
+  cursor pointer
+  transition: all .25s cubic-bezier(.02,.01,.47,1);
+
+  &.button--second
+    padding 0
+    color #333
+    background-color transparent
+    border-radius 0
+    border-bottom 1px solid #333
+  
+  &.button--success
+    background-color green
+    
+  &:hover
+    transform translateY(-2px)
+    transition-delay 0s!important
