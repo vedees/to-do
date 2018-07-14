@@ -3,11 +3,29 @@ section
   .container
     input(type="text" placeholder="Type your task here" v-model="newTodoTitle" @keyup.enter="newTodoItem").task-input
     .todo-list
-      .todo-item(v-for="(todo, index) in todos" :key="todo.id")
-        .texx
-          .todo-item-title(v-if="!todo.editing" @click="editTodoItem(todo)") {{ todo.title }}
+      <transition-group name="fade">
+      .todo-item(v-for="(todo, index) in todosFilter" :key="todo.id")
+        .todo-item-header
+          input(type="checkbox" v-model="todo.completed")
+          .todo-item-title(v-if="!todo.editing" :class="{ completed: todo.completed }" @click="editTodoItem(todo)") {{ todo.title }}
           input(type="text" v-else="todo.editing" v-model="todo.title" @blur="finishEditTodoItem(todo)" @keyup.enter="finishEditTodoItem(todo)" @keyup.esc="cancelEditTodoItem(todo)").todo-item-title.todo-item-title--edit
         span.delete-button(@click="deleteTodoItem(index)")
+      </transition-group>
+    
+    .todo-info
+      .todo-menu-check
+        input(type="checkbox" :checked="!anyTodoInWork" @change="doneAllTodo")
+        |  Check All
+      p Items left: {{ allTodoInWork }}
+
+    .todo-menu
+      .main-navigaton
+        button(:class="{ active: filter == 'all' }" @click="filter = 'all' ").button-main All
+        button(:class="{ active: filter == 'active' }" @click="filter = 'active' ").button-main Active
+        button(:class="{ active: filter == 'completed' }" @click="filter = 'completed' ").button-main Completed
+      <transition name="fade">
+      button(v-if="showDeleteCompletedTodo" @click="deleteCompletedTodo").button-main.button--second Clear Completed
+      </transition>
 </template>
 
 <script>
@@ -18,6 +36,7 @@ export default {
       newTodoTitle: '',
       titleBeforeEdit: '',
       newTodoId: 3,
+      filter: 'all',
       todos: [
         {
           'id': 1,
@@ -36,7 +55,6 @@ export default {
   },
   methods: {
     newTodoItem(){
-
       if(this.newTodoTitle.trim() == ''){
         return
       }
@@ -69,7 +87,37 @@ export default {
     cancelEditTodoItem(todo){
       todo.title = this.titleBeforeEdit;
       todo.editing = false;
+    },
+    doneAllTodo(){
+      this.todos.forEach((todo)=>todo.completed = event.target.checked);
+    },
+    deleteCompletedTodo(){
+      this.todos = this.todos.filter(todo => !todo.completed);
     }
+  },
+  computed: {
+    allTodoInWork(){
+      return this.todos.filter(todo => !todo.completed).length;
+    },
+    anyTodoInWork(){
+      return this.allTodoInWork != 0;
+    },
+    //Todo filter for todos
+    todosFilter(){
+      if(this.filter == 'all'){
+        return this.todos;
+      }else if(this.filter == 'active'){
+        return this.todos.filter(todo => !todo.completed)
+      }else if(this.filter == 'completed'){
+        return this.todos.filter(todo => todo.completed)
+      }
+
+      return this.todos;
+    },
+    showDeleteCompletedTodo(){
+      return this.todos.filter(todo => todo.completed).length > 0;
+    }
+
   }
 }
 </script>
@@ -78,12 +126,19 @@ export default {
 
 .task-input
   width 100%
+  margin-bottom 20px
   padding 8px 16px
   font-size 18px
-  margin-bottom 20px
+  border-radius 8px
+  border 1px solid #ccc
 
   &:focus
     outline 0
+
+.todo-list
+  padding-bottom 20px
+  margin-bottom 20px
+  border-bottom 1px solid #ccc
 
 .todo-item
   display flex
@@ -95,41 +150,34 @@ export default {
   &:last-child
     margin-bottom 0
 
+.todo-item-header
+  display flex
+  align-items center
+
 .todo-item-title
   padding 6px
   font-size 20px
   
   &.todo-item-title--edit
     border 1px solid #ccc
+  
+  &.completed
+    text-decoration line-through
+    color #ccc
 
-.delete-button
-  position absolute
-  top 8px
-  right 0
-  width 18px
-  height @width
-  cursor pointer
-  border-radius: 50%;
+.todo-info
+  display flex
+  justify-content space-between
+  align-items center
+  padding-bottom 20px
+  margin-bottom 20px
+  border-bottom 1px solid #ccc
 
-.delete-button:before,
-.delete-button:after
-  content ""
-  position absolute
-  top 50%
-  right 0
-  width 18px
-  height 1px
-  background-color #333333
-
-  &:hover
-    background-color #e62f57
-
-.delete-button:before
-  transform rotate(45deg)
-
-.delete-button:after
-  transform rotate(-45deg)
-
+.todo-menu,
+.todo-menu-check
+  display flex
+  justify-content space-between
+  align-items center
 
 </style>
 

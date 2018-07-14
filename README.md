@@ -1,6 +1,7 @@
-# todo
+# To-do List Vue.js
 
-> To-do App
+[Demo here](https://vedees.github.io/to-do/dist)
+
 
 ## Build Setup
 

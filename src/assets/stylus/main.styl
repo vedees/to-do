@@ -53,20 +53,24 @@ input, select, button
   position relative
   // text-align center
   
-//Buttons
+// Buttons
 .button-main
   padding 8px 12px
-  margin-bottom 8px
+  margin-right 8px
   font-size 16px
   color #fff
-  background-color #446CB3
+  background-color #ccc
   border none
   border-radius 8px
   cursor pointer
   transition: all .25s cubic-bezier(.02,.01,.47,1);
 
+  &.active
+    background-color #446CB3
+
   &.button--second
     padding 0
+    margin-right 0
     color #333
     background-color transparent
     border-radius 0
@@ -78,3 +82,41 @@ input, select, button
   &:hover
     transform translateY(-2px)
     transition-delay 0s!important
+
+
+.delete-button
+  position absolute
+  top 8px
+  right 0
+  width 18px
+  height @width
+  cursor pointer
+  border-radius: 50%;
+
+.delete-button:before,
+.delete-button:after
+  content ""
+  position absolute
+  top 50%
+  right 0
+  width 18px
+  height 1px
+  background-color #333333
+
+  &:hover
+    background-color #e62f57
+
+.delete-button:before
+  transform rotate(45deg)
+
+.delete-button:after
+  transform rotate(-45deg)
+
+// Animation
+.fade-enter-active,
+.fade-leave-active
+  transition: opacity .2s
+
+.fade-enter,
+.fade-leave-to
+  opacity 0
