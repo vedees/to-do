@@ -1,14 +1,26 @@
 <template lang="pug">
 section
   .container
-    input(type="text" placeholder="Type your task here" v-model="newTodoTitle" @keyup.enter="newTodoItem").task-input
+    .todo-task
+      input.task-input(type="text" placeholder="Type your task here" v-model="newTodoTitle" @keyup.enter="newTodoItem")
+      .priority-list
+        .priority-item
+          label.priority-label.priority-label--grey(for='grey' :class="{ active: priority == 'grey' }" @click=" priority = 'grey' " )
+          input.priority-input(type="radio" id="grey" checked="checked" )
+        .priority-item
+          label.priority-label.priority-label--yellow(for='yellow' :class="{ active: priority == 'yellow' }" @click=" priority = 'yellow' " )
+          input.priority-input(type="radio" id="yellow")
+        .priority-item
+          label.priority-label.priority-label--red(for='red' :class="{ active: priority == 'red' }" @click=" priority = 'red' " )
+          input.priority-input(type="radio" id="red")
+
     .todo-list
       <transition-group name="fade">
-      .todo-item(v-for="(todo, index) in todosFilter" :key="todo.id")
+      .todo-item(v-for="(todo, index) in todosFilter" :key="todo.id" :class="{ grey: todo.priority == 'grey', yellow: todo.priority == 'yellow', red: todo.priority == 'red' }")
         .todo-item-header
           input(type="checkbox" v-model="todo.completed")
           .todo-item-title(v-if="!todo.editing" :class="{ completed: todo.completed }" @click="editTodoItem(todo)") {{ todo.title }}
-          input(type="text" v-else="todo.editing" v-model="todo.title" @blur="finishEditTodoItem(todo)" @keyup.enter="finishEditTodoItem(todo)" @keyup.esc="cancelEditTodoItem(todo)").todo-item-title.todo-item-title--edit
+          input.todo-item-title.todo-item-title--edit(type="text" v-else="todo.editing" v-model="todo.title" @blur="finishEditTodoItem(todo)" @keyup.enter="finishEditTodoItem(todo)" @keyup.esc="cancelEditTodoItem(todo)")
         span.delete-button(@click="deleteTodoItem(index)")
       </transition-group>
     
@@ -37,18 +49,21 @@ export default {
       titleBeforeEdit: '',
       newTodoId: 3,
       filter: 'all',
+      priority: 'grey',
       todos: [
         {
           'id': 1,
           'title': 'Learn Vue.js',
           'completed': false,
-          'editing': false
+          'editing': false,
+          'priority': 'grey'
         },
         {
           'id': 2,
           'title': 'Finish App',
           'completed': false,
-          'editing': false
+          'editing': false,
+          'priority': 'grey'
         } 
       ]
     }
@@ -62,11 +77,14 @@ export default {
       this.todos.push({
         id: this.newTodoId,
         title: this.newTodoTitle,
-        completed: false
+        completed: false,
+        editing: false,
+        priority: this.priority
       })
 
       this.newTodoTitle = '';
       this.newTodoId += 1;
+      this.priority = 'grey';
     },
     deleteTodoItem(index){
       this.todos.splice(index, 1);
@@ -107,9 +125,9 @@ export default {
       if(this.filter == 'all'){
         return this.todos;
       }else if(this.filter == 'active'){
-        return this.todos.filter(todo => !todo.completed)
+        return this.todos.filter(todo => !todo.completed);
       }else if(this.filter == 'completed'){
-        return this.todos.filter(todo => todo.completed)
+        return this.todos.filter(todo => todo.completed);
       }
 
       return this.todos;
@@ -124,9 +142,51 @@ export default {
 
 <style lang="stylus">
 
-.task-input
-  width 100%
+.todo-task
+  display flex
+  justify-content space-between
+  position relative
+  align-items center
   margin-bottom 20px
+
+.priority-list
+  display flex
+  justify-content space-between
+
+.priority-item
+  width: 33%;
+  margin-right 8px
+
+  &:last-child 
+    margin-right 0
+
+.priority-input
+  display none
+
+.priority-label
+  display: flex;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.02,.01,.47,1);
+  
+  &.active
+    border 3px solid #ccc
+  &:hover
+    transform translateY(-2px)
+    transition-delay 0s!important
+
+.priority-label--grey
+  background-color #ECECEC
+.priority-label--yellow
+  background-color #F5D76E
+.priority-label--red
+  background-color #f17c67
+
+.task-input
+  width 86%
   padding 8px 16px
   font-size 18px
   border-radius 8px
@@ -146,6 +206,15 @@ export default {
   align-items center
   position relative
   margin-bottom 6px
+  padding 0 10px
+  border-radius 8px
+
+  &.grey
+    background-color #ECECEC
+  &.yellow
+    background-color #F5D76E
+  &.red
+    background-color #f17c67
 
   &:last-child
     margin-bottom 0
@@ -157,9 +226,12 @@ export default {
 .todo-item-title
   padding 6px
   font-size 20px
+  cursor pointer
   
   &.todo-item-title--edit
     border 1px solid #ccc
+    cursor initial
+    
   
   &.completed
     text-decoration line-through
