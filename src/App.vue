@@ -1,8 +1,5 @@
 <template lang="pug">
 .wrapper
-  section
-    .container
-      h1 To-Do List
 			
   <todo-list></todo-list>
 

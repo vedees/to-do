@@ -1,6 +1,9 @@
 <template lang="pug">
 section
   .container
+    .user-info
+      h1 To-Do List
+      span.user-score Score: {{ score }}
     .todo-task
       input.task-input(type="text" placeholder="Type your task here" v-model="newTodoTitle" @keyup.enter="newTodoItem")
       .priority-list
@@ -13,15 +16,19 @@ section
         .priority-item
           label.priority-label.priority-label--red(for='red' :class="{ active: priority == 'red' }" @click=" priority = 'red' " )
           input.priority-input(type="radio" id="red")
+      button.button-main.active(@click="newTodoItem") Create
+      
 
     .todo-list
-      <transition-group name="fade">
+      <transition-group name="listAnim">
       .todo-item(v-for="(todo, index) in todosFilter" :key="todo.id" :class="{ grey: todo.priority == 'grey', yellow: todo.priority == 'yellow', red: todo.priority == 'red' }")
         .todo-item-header
-          input(type="checkbox" v-model="todo.completed")
+          input(type="checkbox" v-model="todo.completed" @click.once="scoreUpdate")
           .todo-item-title(v-if="!todo.editing" :class="{ completed: todo.completed }" @click="editTodoItem(todo)") {{ todo.title }}
           input.todo-item-title.todo-item-title--edit(type="text" v-else="todo.editing" v-model="todo.title" @blur="finishEditTodoItem(todo)" @keyup.enter="finishEditTodoItem(todo)" @keyup.esc="cancelEditTodoItem(todo)")
-        span.delete-button(@click="deleteTodoItem(index)")
+        .todo-item-buttons
+          span.delete-button(@click="deleteTodoItem(index)")
+          span.edit-button(@click="todo.editing = true") Edit
       </transition-group>
     
     .todo-info
@@ -50,6 +57,7 @@ export default {
       newTodoId: 3,
       filter: 'all',
       priority: 'grey',
+      score: 0,
       todos: [
         {
           'id': 1,
@@ -82,13 +90,19 @@ export default {
         priority: this.priority
       })
 
-      this.newTodoTitle = '';
       this.newTodoId += 1;
+      this.score += 5;
+
+      //Reset
+      this.newTodoTitle = '';
       this.priority = 'grey';
     },
     deleteTodoItem(index){
       this.todos.splice(index, 1);
+      this.score += 10;
     },
+
+    //Edit Todo
     editTodoItem(todo){
 
       //title before edit
@@ -106,11 +120,17 @@ export default {
       todo.title = this.titleBeforeEdit;
       todo.editing = false;
     },
+    //Edit Todo end
+
     doneAllTodo(){
       this.todos.forEach((todo)=>todo.completed = event.target.checked);
     },
     deleteCompletedTodo(){
+      this.score += this.allTodoCompleted;
       this.todos = this.todos.filter(todo => !todo.completed);
+    },
+    scoreUpdate(){
+       this.score += 10;
     }
   },
   computed: {
@@ -119,6 +139,9 @@ export default {
     },
     anyTodoInWork(){
       return this.allTodoInWork != 0;
+    },
+    allTodoCompleted(){
+      return this.todos.filter(todo => todo.completed).length;
     },
     //Todo filter for todos
     todosFilter(){
@@ -142,16 +165,25 @@ export default {
 
 <style lang="stylus">
 
+.user-info
+  display flex
+  align-items center
+  justify-content space-between
+  margin-bottom 20px
+
 .todo-task
   display flex
   justify-content space-between
   position relative
   align-items center
   margin-bottom 20px
+  width 100%
 
 .priority-list
   display flex
   justify-content space-between
+  margin-right 14px
+
 
 .priority-item
   width: 33%;
@@ -186,8 +218,9 @@ export default {
   background-color #f17c67
 
 .task-input
-  width 86%
+  width 80%
   padding 8px 16px
+  margin-right 14px
   font-size 18px
   border-radius 8px
   border 1px solid #ccc
@@ -208,6 +241,7 @@ export default {
   margin-bottom 6px
   padding 0 10px
   border-radius 8px
+
 
   &.grey
     background-color #ECECEC
