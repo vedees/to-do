@@ -6,6 +6,13 @@ section
       span.user-score Score: {{ score }}
     .todo-task
       input.task-input(type="text" placeholder="Type your task here" v-model="newTodoTitle" @keyup.enter="newTodoItem")
+      .category-list
+        select.category-select(v-model="category" placeholder='Source Type')
+          option(disabled value="") Category
+          option(value='Other') Other
+          option(value='Work') Work
+          option(value='Home') Home
+          option(value='Travel') Travel
       .priority-list
         .priority-item
           label.priority-label.priority-label--grey(for='grey' :class="{ active: priority == 'grey' }" @click=" priority = 'grey' " )
@@ -17,6 +24,9 @@ section
           label.priority-label.priority-label--red(for='red' :class="{ active: priority == 'red' }" @click=" priority = 'red' " )
           input.priority-input(type="radio" id="red")
       button.button-main.active(@click="newTodoItem") Create
+
+
+    
       
 
     .todo-list
@@ -26,6 +36,7 @@ section
           input(type="checkbox" v-model="todo.completed" @click.once="scoreUpdate")
           .todo-item-title(v-if="!todo.editing" :class="{ completed: todo.completed }" @click="editTodoItem(todo)") {{ todo.title }}
           input.todo-item-title.todo-item-title--edit(type="text" v-else="todo.editing" v-model="todo.title" @blur="finishEditTodoItem(todo)" @keyup.enter="finishEditTodoItem(todo)" @keyup.esc="cancelEditTodoItem(todo)")
+          .todo-item-category {{ todo.category }}
         .todo-item-buttons
           span.delete-button(@click="deleteTodoItem(index)")
           span.edit-button(@click="todo.editing = true") Edit
@@ -57,6 +68,7 @@ export default {
       newTodoId: 3,
       filter: 'all',
       priority: 'grey',
+      category: '',
       score: 0,
       todos: [
         {
@@ -64,14 +76,16 @@ export default {
           'title': 'Learn Vue.js',
           'completed': false,
           'editing': false,
-          'priority': 'grey'
+          'priority': 'grey',
+          'category': 'Work'
         },
         {
           'id': 2,
           'title': 'Finish App',
           'completed': false,
           'editing': false,
-          'priority': 'grey'
+          'priority': 'yellow',
+          'category': 'Work'
         } 
       ]
     }
@@ -79,7 +93,10 @@ export default {
   methods: {
     newTodoItem(){
       if(this.newTodoTitle.trim() == ''){
-        return
+        return;
+      }
+       if(this.category.trim() == ''){
+        this.category = 'Other';
       }
 
       this.todos.push({
@@ -87,7 +104,8 @@ export default {
         title: this.newTodoTitle,
         completed: false,
         editing: false,
-        priority: this.priority
+        priority: this.priority,
+        category: this.category
       })
 
       this.newTodoId += 1;
@@ -96,6 +114,7 @@ export default {
       //Reset
       this.newTodoTitle = '';
       this.priority = 'grey';
+      this.category = '';
     },
     deleteTodoItem(index){
       this.todos.splice(index, 1);
@@ -218,7 +237,7 @@ export default {
   background-color #f17c67
 
 .task-input
-  width 80%
+  width 70%
   padding 8px 16px
   margin-right 14px
   font-size 18px
@@ -271,6 +290,12 @@ export default {
     text-decoration line-through
     color #ccc
 
+.todo-item-category
+  font-size 16px
+  padding-left 20px
+  color #777
+
+
 .todo-info
   display flex
   justify-content space-between
@@ -284,6 +309,58 @@ export default {
   display flex
   justify-content space-between
   align-items center
+
+select
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  outline: 0;
+  box-shadow: none;
+  border: 0;
+  background-image: none;
+
+.category-list
+  position: relative;
+  display: block;
+  width: 120px;
+  height: 39px;
+  line-height: 3;
+  border 1px solid #ccc
+  border-radius 8px
+  overflow: hidden;
+  transition: .25s all ease;
+
+  &:after
+    content: '\2193';
+    position: absolute;
+    color: #7e7e7e;
+    top: -8px;
+    right: 3px;
+    padding: 0 10px;
+    pointer-events: none;
+    transition: all .25s cubic-bezier(.02,.01,.47,1);
+
+  &:hover
+    .category-select
+      color #333
+    &:after
+      color: #333;
+      top: -6px;
+
+
+.category-select
+  position absolute
+  background-color #fff
+  width 100%
+  height 100%
+  margin 0
+  padding: 0 10px;  
+  color: #7e7e7e;
+  font-size 18px
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.02,.01,.47,1);
+
 
 </style>
 
