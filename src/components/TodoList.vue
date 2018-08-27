@@ -25,21 +25,13 @@ section
           input.priority-input(type="radio" id="red")
       button.button-main.active(@click="newTodoItem") Create
 
-
-    
-      
-
     .todo-list
       <transition-group name="listAnim">
-      .todo-item(v-for="(todo, index) in todosFilter" :key="todo.id" :class="{ grey: todo.priority == 'grey', yellow: todo.priority == 'yellow', red: todo.priority == 'red' }")
-        .todo-item-header
-          input(type="checkbox" v-model="todo.completed" @click.once="scoreUpdate")
-          .todo-item-title(v-if="!todo.editing" :class="{ completed: todo.completed }" @click="editTodoItem(todo)") {{ todo.title }}
-          input.todo-item-title.todo-item-title--edit(type="text" v-else="todo.editing" v-model="todo.title" @blur="finishEditTodoItem(todo)" @keyup.enter="finishEditTodoItem(todo)" @keyup.esc="cancelEditTodoItem(todo)")
-          .todo-item-category {{ todo.category }}
-        .todo-item-buttons
-          span.delete-button(@click="deleteTodoItem(index)")
-          span.edit-button(@click="todo.editing = true") Edit
+      <todo-item v-for="(todo, index) in todosFilter" :key="todo.id"  :todo="todo" :index="index" :checked="!anyTodoInWork" @deleteTodoItem="deleteTodoItem" @doneFinishedEditTodoItem="doneFinishedEditTodoItem">
+        
+        //TodoItem here
+      
+      </todo-item>
       </transition-group>
     
     .todo-info
@@ -53,14 +45,20 @@ section
         button(:class="{ active: filter == 'all' }" @click="filter = 'all' ").button-main All
         button(:class="{ active: filter == 'active' }" @click="filter = 'active' ").button-main Active
         button(:class="{ active: filter == 'completed' }" @click="filter = 'completed' ").button-main Completed
-      <transition name="fade">
-      button(v-if="showDeleteCompletedTodo" @click="deleteCompletedTodo").button-main.button--second Clear Completed
+      
+      <transition name="listAnim">
+        span(v-if="showDeleteCompletedTodo" @click="deleteCompletedTodo").button-main.button--second Clear Completed
       </transition>
 </template>
 
 <script>
+import TodoItem from './TodoItem'
+
 export default {
   name: 'todo-list',
+  components: {
+    TodoItem,
+  },
   data() {
     return{
       newTodoTitle: '',
@@ -120,27 +118,6 @@ export default {
       this.todos.splice(index, 1);
       this.score += 10;
     },
-
-    //Edit Todo
-    editTodoItem(todo){
-
-      //title before edit
-      this.titleBeforeEdit = todo.title;
-      todo.editing = true;
-    },
-    finishEditTodoItem(todo){
-      todo.editing = false;
-      
-      if(todo.title.trim() == ''){
-        todo.title = this.titleBeforeEdit;
-      }
-    },
-    cancelEditTodoItem(todo){
-      todo.title = this.titleBeforeEdit;
-      todo.editing = false;
-    },
-    //Edit Todo end
-
     doneAllTodo(){
       this.todos.forEach((todo)=>todo.completed = event.target.checked);
     },
@@ -150,6 +127,10 @@ export default {
     },
     scoreUpdate(){
        this.score += 10;
+    },
+    doneFinishedEditTodoItem(data){
+      // TodoItem - Update array for TodoList
+      this.todos.splice(data.index, 1, data.todo)
     }
   },
   computed: {
